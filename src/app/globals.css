@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest-50: #E8F5E9;
+  --color-forest-100: #C8E6C9;
+  --color-forest-200: #A5D6A7;
+  --color-forest-300: #81C784;
+  --color-forest-400: #66BB6A;
+  --color-forest-500: #4CAF50;
+  --color-forest-600: #388E3C;
+  --color-forest-700: #2E7D32;
+  --color-forest-800: #1B5E20;
+  --color-forest-900: #0D3B0D;
+  --color-gold-50: #FFF8E1;
+  --color-gold-100: #FFECB3;
+  --color-gold-200: #FFE082;
+  --color-gold-300: #FFD54F;
+  --color-gold-400: #FFCA28;
+  --color-gold-500: #FFC107;
+  --color-gold-600: #D4A853;
+  --color-gold-700: #B8860B;
+  --color-gold-800: #9A7B0E;
+  --color-dark: #0A1F0A;
+  --color-dark-100: #0F2A0F;
+  --color-dark-200: #153515;
+  --font-heading: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-800;
+  }
+  body {
+    @apply bg-white text-gray-900 dark:bg-dark dark:text-gray-100 font-sans antialiased;
+    font-family: var(--font-body);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-forest-700 via-forest-600 to-gold-600;
+  }
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-lg;
+  }
+  .glass-dark {
+    @apply bg-dark/80 backdrop-blur-md border border-white/10 shadow-lg;
+  }
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-md border border-white/30 shadow-xl;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2E7D32;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1B5E20;
+}

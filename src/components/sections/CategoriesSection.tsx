@@ -3,11 +3,22 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { categories } from "@/data/categories";
 import AnimatedSection from "@/components/shared/AnimatedSection";
 import SectionHeading from "@/components/shared/SectionHeading";
 
-export default function CategoriesSection() {
+interface CategoryData {
+  id: string;
+  name: string;
+  slug: string;
+  image: string;
+  plantCount: number;
+}
+
+interface CategoriesSectionProps {
+  categories: CategoryData[];
+}
+
+export default function CategoriesSection({ categories }: CategoriesSectionProps) {
   return (
     <section className="py-24 bg-gray-50 dark:bg-dark-100/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -53,16 +64,8 @@ export default function CategoriesSection() {
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center mt-10"
-        >
-          <Link
-            href="/categories"
-            className="inline-flex items-center gap-2 text-forest-700 dark:text-forest-400 font-medium hover:gap-3 transition-all"
-          >
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mt-10">
+          <Link href="/categories" className="inline-flex items-center gap-2 text-forest-700 dark:text-forest-400 font-medium hover:gap-3 transition-all">
             View All Categories <ArrowRight className="w-4 h-4" />
           </Link>
         </motion.div>

@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, Clock, Send, MessageCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -22,8 +23,29 @@ const contactInfo = [
 ];
 
 export default function ContactPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm<ContactFormData>({ resolver: zodResolver(contactFormSchema) });
-  const onSubmit = (data: ContactFormData) => { console.log(data); alert("Thank you for your message! We will get back to you shortly."); };
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<ContactFormData>({ resolver: zodResolver(contactFormSchema) });
+  const onSubmit = async (data: ContactFormData) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+        reset();
+      } else {
+        alert("Failed to send message. Please try again.");
+      }
+    } catch {
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main>
@@ -81,7 +103,14 @@ export default function ContactPage() {
                 <textarea {...register("message")} rows={5} placeholder="Your message..." className="w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-dark-100 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
                 {errors.message && <p className="text-xs text-red-500 mt-1">{errors.message.message}</p>}
               </div>
-              <Button type="submit" size="lg" className="w-full group"><Send className="mr-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /> Send Message</Button>
+              <Button type="submit" size="lg" className="w-full group" disabled={loading}>
+                {loading ? "Sending..." : <><Send className="mr-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /> Send Message</>}
+              </Button>
+              {submitted && (
+                <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 text-sm text-center">
+                  Thank you! Your message has been sent. We will get back to you shortly.
+                </div>
+              )}
             </form>
           </motion.div>
         </div>

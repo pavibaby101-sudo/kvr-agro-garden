@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import ClientWidgets from "@/components/shared/ClientWidgets";
 import "./globals.css";
 
 const inter = Inter({
@@ -54,14 +55,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#1B5E20" />
       </head>
       <body className={`${inter.variable} ${playfair.variable} font-sans`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+          <ClientWidgets>{children}</ClientWidgets>
       </body>
     </html>
   );

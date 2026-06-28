@@ -74,7 +74,7 @@ export default function MobileNav({ open, onClose }: MobileNavProps) {
 
             <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 dark:border-gray-800">
               <p className="text-xs text-gray-400 text-center">
-                KVR Agro Gardens &copy; 2024
+                KVR Agro Gardens &copy; {new Date().getFullYear()}
               </p>
             </div>
           </motion.div>

@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { Calendar, Clock } from "lucide-react";
-import { blogPosts } from "@/data/blog";
+import { getBlogPosts } from "@/data/blog";
 import { formatDate } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default function BlogPage() {
+  const blogPosts = getBlogPosts();
   return (
     <main>
       <Navbar />
@@ -56,7 +57,7 @@ export default function BlogPage() {
         ))}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogPosts.map(post => (
+          {blogPosts.filter(p => !p.featured).map(post => (
             <Link key={post.id} href={`/blog/${post.slug}`} className="group bg-white dark:bg-dark-100 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden">
               <div className="aspect-[16/9] relative overflow-hidden">
                 <Image

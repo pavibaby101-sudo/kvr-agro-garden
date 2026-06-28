@@ -7,7 +7,7 @@ import AnimatedSection from "@/components/shared/AnimatedSection";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { Button } from "@/components/ui/button";
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Trees, Sprout, Leaf, Wallpaper, Sun, UtensilsCrossed, Flower2,
   Calendar, Building2, ClipboardList, Stethoscope, Truck, Package, Sofa,
 };

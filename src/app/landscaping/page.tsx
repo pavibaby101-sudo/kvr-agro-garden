@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Trees, Ruler, ClipboardCheck, CheckCircle2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -21,8 +22,29 @@ const steps = [
 ];
 
 export default function LandscapingPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm<LandscapingFormData>({ resolver: zodResolver(landscapingFormSchema) });
-  const onSubmit = (data: LandscapingFormData) => { console.log(data); alert("Thank you! We will contact you shortly."); };
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<LandscapingFormData>({ resolver: zodResolver(landscapingFormSchema) });
+  const onSubmit = async (data: LandscapingFormData) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/landscaping", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+        reset();
+      } else {
+        alert("Failed to submit request. Please try again.");
+      }
+    } catch {
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main>
@@ -77,7 +99,14 @@ export default function LandscapingPage() {
               <textarea {...register("description")} rows={4} placeholder="Describe your landscaping project..." className="w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-dark-100 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
               {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>}
             </div>
-            <Button type="submit" size="lg" className="w-full">Submit Request</Button>
+            <Button type="submit" size="lg" className="w-full" disabled={loading}>
+              {loading ? "Submitting..." : "Submit Request"}
+            </Button>
+            {submitted && (
+              <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 text-sm text-center">
+                Thank you! We will contact you shortly.
+              </div>
+            )}
           </motion.form>
         </div>
       </div>

@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir, readFile } from "fs/promises";
 import path from "path";
+import { getAuthFromRequest } from "@/lib/auth";
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
+  const user = await getAuthFromRequest();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
     const files = formData.getAll("files") as File[];
@@ -16,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No files provided" }, { status: 400 });
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "images", "gallery");
+    const uploadDir = path.join(process.cwd(), "uploads", "gallery");
     await mkdir(uploadDir, { recursive: true });
 
     const uploadedItems = [];
@@ -37,7 +43,7 @@ export async function POST(request: NextRequest) {
 
       const newItem = {
         id: `gallery-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-        src: `/images/gallery/${uniqueName}`,
+        src: `/api/gallery/image/${uniqueName}`,
         alt: file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " "),
         category,
         width: isImage ? 800 : 1280,
@@ -68,6 +74,7 @@ export async function POST(request: NextRequest) {
       items: uploadedItems,
     });
   } catch (error) {
+    console.error("Upload failed:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }

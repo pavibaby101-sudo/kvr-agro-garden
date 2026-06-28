@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { categories } from "@/data/categories";
+import { getCategories } from "@/data/categories";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/shared/WhatsAppButton";
@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default function CategoriesPage() {
+  const categories = getCategories();
   return (
     <main>
       <Navbar />

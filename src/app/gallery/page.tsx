@@ -1,9 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
-import { X, Play, ChevronDown } from "lucide-react";
-import { galleryItems } from "@/data/gallery";
+import { X, Play, ChevronDown, LoaderCircle } from "lucide-react";
 import { GalleryItem } from "@/types";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -15,10 +13,20 @@ const categories = ["all", "plants", "flowers", "fruit", "landscaping", "custome
 const ITEMS_PER_PAGE = 30;
 
 export default function GalleryPage() {
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const loaderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch("/api/gallery")
+      .then((r) => r.json())
+      .then((data) => setGalleryItems(data.items || []))
+      .catch(() => setGalleryItems([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = activeCategory === "all" ? galleryItems : galleryItems.filter(item => item.category === activeCategory);
   const visibleItems = filtered.slice(0, visibleCount);
@@ -69,60 +77,72 @@ export default function GalleryPage() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 -mt-6">
-        <div className="flex flex-wrap gap-2 mb-8">
-          {categories.map(cat => (
-            <button key={cat} onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === cat ? "bg-forest-700 text-white shadow-lg shadow-forest-700/30" : "bg-white dark:bg-dark-100 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark border border-gray-200 dark:border-gray-800"}`}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-3">
+            <LoaderCircle className="w-8 h-8 animate-spin text-forest-600" />
+            <p className="text-sm text-gray-400">Loading gallery...</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-wrap gap-2 mb-8">
+              {categories.map(cat => (
+                <button key={cat} onClick={() => setActiveCategory(cat)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === cat ? "bg-forest-700 text-white shadow-lg shadow-forest-700/30" : "bg-white dark:bg-dark-100 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark border border-gray-200 dark:border-gray-800"}`}>
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>
+              ))}
+            </div>
 
-        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
-          {visibleItems.map((item) => (
-            <motion.div key={item.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }} onClick={() => openLightbox(item)}
-              className="break-inside-avoid cursor-pointer group relative overflow-hidden rounded-2xl">
-              <div className="relative" style={{ aspectRatio: `${item.width}/${item.height}` }}>
-                {item.type === "video" ? (
-                  <>
-                    <video src={item.src} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" muted playsInline preload="metadata" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center group-hover:bg-black/70 transition-colors">
-                        <Play className="w-6 h-6 text-white ml-0.5" fill="white" />
+            {visibleItems.length === 0 ? (
+              <div className="text-center py-24 text-gray-400">No gallery items found</div>
+            ) : (
+              <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+                {visibleItems.map((item) => (
+                  <motion.div key={item.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }} onClick={() => openLightbox(item)}
+                    className="break-inside-avoid cursor-pointer group relative overflow-hidden rounded-2xl">
+                    <div className="relative" style={{ aspectRatio: `${item.width}/${item.height}` }}>
+                      {item.type === "video" ? (
+                        <>
+                          <video src={item.src} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" muted playsInline preload="metadata" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center group-hover:bg-black/70 transition-colors">
+                              <Play className="w-6 h-6 text-white ml-0.5" fill="white" />
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <img
+                          src={item.src}
+                          alt={item.alt}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                        <p className="text-white text-sm font-medium">{item.alt}</p>
+                        <p className="text-white/60 text-xs capitalize">{item.category}</p>
                       </div>
                     </div>
-                  </>
-                ) : (
-                  <Image
-                    src={item.src}
-                    alt={item.alt}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <p className="text-white text-sm font-medium">{item.alt}</p>
-                  <p className="text-white/60 text-xs capitalize">{item.category}</p>
-                </div>
+                  </motion.div>
+                ))}
               </div>
-            </motion.div>
-          ))}
-        </div>
+            )}
 
-        {hasMore && (
-          <div ref={loaderRef} className="flex justify-center py-12">
-            <button onClick={loadMore} className="flex items-center gap-2 px-6 py-3 rounded-full bg-forest-700 text-white hover:bg-forest-800 transition-colors">
-              <span>Load more</span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+            {hasMore && (
+              <div ref={loaderRef} className="flex justify-center py-12">
+                <button onClick={loadMore} className="flex items-center gap-2 px-6 py-3 rounded-full bg-forest-700 text-white hover:bg-forest-800 transition-colors">
+                  <span>Load more</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
-        {!hasMore && visibleItems.length > 0 && (
-          <div className="text-center py-12 text-gray-400 text-sm">All {filtered.length} items loaded</div>
+            {!hasMore && visibleItems.length > 0 && (
+              <div className="text-center py-12 text-gray-400 text-sm">All {filtered.length} items loaded</div>
+            )}
+          </>
         )}
       </div>
 
@@ -139,7 +159,7 @@ export default function GalleryPage() {
                 {selectedItem.type === "video" ? (
                   <video src={selectedItem.src} className="w-full h-full object-contain" controls autoPlay />
                 ) : (
-                  <Image src={selectedItem.src} alt={selectedItem.alt} fill className="object-contain" sizes="100vw" />
+                  <img src={selectedItem.src} alt={selectedItem.alt} className="w-full h-full object-contain" />
                 )}
               </div>
               <div className="mt-3 text-center">

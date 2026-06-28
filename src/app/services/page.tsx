@@ -9,7 +9,7 @@ import WhatsAppButton from "@/components/shared/WhatsAppButton";
 import CallButton from "@/components/shared/CallButton";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 
-const iconMap: Record<string, any> = { Trees, Sprout, Leaf, Wallpaper, Sun, UtensilsCrossed, Flower2, Calendar, Building2, ClipboardList, Stethoscope, Truck, Sofa };
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = { Trees, Sprout, Leaf, Wallpaper, Sun, UtensilsCrossed, Flower2, Calendar, Building2, ClipboardList, Stethoscope, Truck, Sofa };
 
 export const metadata: Metadata = {
   title: "Services",

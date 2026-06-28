@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { unlink, readFile, writeFile } from "fs/promises";
 import path from "path";
+import { getAuthFromRequest } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
+  const user = await getAuthFromRequest();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { src, id } = await request.json();
 
@@ -10,13 +16,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No src provided" }, { status: 400 });
     }
 
-    if (src.startsWith("/images/gallery/")) {
-      const filePath = path.join(process.cwd(), "public", src);
-      try {
-        await unlink(filePath);
-      } catch {
-        // File may not exist
-      }
+    const filename = src.split("/").pop();
+    if (filename) {
+      const uploadsPath = path.join(process.cwd(), "uploads", "gallery", filename);
+      try { await unlink(uploadsPath); } catch {}
+      const publicPath = path.join(process.cwd(), "public", "images", "gallery", filename);
+      try { await unlink(publicPath); } catch {}
     }
 
     if (id) {
@@ -29,6 +34,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error("Delete failed:", error);
     return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 }

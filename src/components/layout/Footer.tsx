@@ -2,11 +2,16 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Globe, Camera, Play, MessageCircle, Send } from "lucide-react";
+import { Mail, Phone, MapPin, MessageCircle, Send, Facebook, Camera, Play } from "lucide-react";
 import { siteConfig } from "@/lib/constants";
-import { categories } from "@/data/categories";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+
+interface CategoryData {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 const quickLinks = [
   { label: "About Us", href: "/about" },
@@ -20,7 +25,15 @@ const quickLinks = [
 
 export default function Footer() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  const [categories, setCategories] = useState<CategoryData[]>([]);
+
+  useEffect(() => {
+    setMounted(true);
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then((data) => setCategories(data.categories || []))
+      .catch(() => {});
+  }, []);
 
   const circles = [
     { top: 10, left: 5, scale: 1.2 }, { top: 25, left: 80, scale: 1.5 }, { top: 45, left: 30, scale: 0.8 },
@@ -34,7 +47,6 @@ export default function Footer() {
 
   return (
     <footer className="relative bg-dark text-white overflow-hidden">
-      {/* Background Pattern */}
       {mounted && (
         <div className="absolute inset-0 opacity-[0.03]">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-forest-500 to-transparent" />
@@ -50,12 +62,7 @@ export default function Footer() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* About */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <Link href="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl overflow-hidden">
                 <img src="/images/logo.png" alt="KVR Agro Gardens" className="w-full h-full object-contain" />
@@ -65,38 +72,28 @@ export default function Footer() {
                 <span className="text-lg font-heading font-light text-forest-400"> Agro Gardens</span>
               </div>
             </Link>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              {siteConfig.description}
-            </p>
+            <p className="text-gray-400 text-sm leading-relaxed mb-6">{siteConfig.description}</p>
             <div className="flex items-center gap-3">
-              {[Globe, Camera, Play, MessageCircle].map((Icon, i) => (
-                <motion.a
-                  key={i}
-                  href="#"
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-forest-600 hover:text-white transition-colors"
-                >
-                  <Icon className="w-4 h-4" />
+              {[
+                { icon: Facebook, href: siteConfig.social.facebook, label: "Facebook" },
+                { icon: Camera, href: siteConfig.social.instagram, label: "Instagram" },
+                { icon: Play, href: siteConfig.social.youtube, label: "YouTube" },
+                { icon: MessageCircle, href: siteConfig.social.whatsapp, label: "WhatsApp" },
+              ].filter(s => s.href && s.href !== "#").map((social) => (
+                <motion.a key={social.label} href={social.href} target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.1, y: -2 }}
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:bg-forest-600 hover:text-white transition-colors">
+                  <social.icon className="w-4 h-4" />
                 </motion.a>
               ))}
             </div>
           </motion.div>
 
-          {/* Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-forest-400 mb-4">Quick Links</h3>
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-2 group"
-                  >
+                  <Link href={link.href} className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-2 group">
                     <span className="w-1 h-1 rounded-full bg-forest-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                     {link.label}
                   </Link>
@@ -105,21 +102,12 @@ export default function Footer() {
             </ul>
           </motion.div>
 
-          {/* Categories */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-forest-400 mb-4">Categories</h3>
             <ul className="space-y-3">
               {categories.slice(0, 8).map((cat) => (
                 <li key={cat.id}>
-                  <Link
-                    href={`/categories/${cat.slug}`}
-                    className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-2 group"
-                  >
+                  <Link href={`/categories/${cat.slug}`} className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-2 group">
                     <span className="w-1 h-1 rounded-full bg-forest-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                     {cat.name}
                   </Link>
@@ -128,13 +116,7 @@ export default function Footer() {
             </ul>
           </motion.div>
 
-          {/* Contact & Newsletter */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-forest-400 mb-4">Get In Touch</h3>
             <div className="space-y-4 mb-6">
               <div className="flex items-start gap-3">
@@ -152,26 +134,18 @@ export default function Footer() {
             </div>
             <h4 className="text-sm font-medium text-white mb-3">Subscribe to Newsletter</h4>
             <div className="flex gap-2">
-              <Input
-                type="email"
-                placeholder="Your email"
-                className="h-10 bg-white/10 border-white/20 text-white placeholder:text-gray-500"
-              />
-              <Button size="icon" className="h-10 w-10 shrink-0 rounded-full bg-forest-600 hover:bg-forest-500">
+              <Input type="email" placeholder="Your email" className="h-10 bg-white/10 border-white/20 text-white placeholder:text-gray-500" />
+              <Button size="icon" className="h-10 w-10 shrink-0 rounded-full bg-forest-600 hover:bg-forest-500" onClick={() => alert("Thank you for subscribing!")}>
                 <Send className="h-4 w-4" />
               </Button>
             </div>
           </motion.div>
         </div>
 
-        {/* Copyright */}
         <div className="mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
-          </p>
+          <p className="text-gray-500 text-sm">&copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.</p>
           <div className="flex items-center gap-4 text-sm">
-            <Link href="/privacy" className="text-gray-500 hover:text-gray-300 transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="text-gray-500 hover:text-gray-300 transition-colors">Terms of Service</Link>
+            <span className="text-gray-500">KVR Agro Gardens</span>
           </div>
         </div>
       </div>

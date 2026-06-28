@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Egg, Bird, Shield, Star } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -30,8 +31,29 @@ const faqs = [
 ];
 
 export default function HatcheryPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm<HatcheryFormData>({ resolver: zodResolver(hatcheryFormSchema) });
-  const onSubmit = (data: HatcheryFormData) => { console.log(data); alert("Thank you! We will contact you about your hatchery request."); };
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<HatcheryFormData>({ resolver: zodResolver(hatcheryFormSchema) });
+  const onSubmit = async (data: HatcheryFormData) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/hatchery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+        reset();
+      } else {
+        alert("Failed to submit request. Please try again.");
+      }
+    } catch {
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main>
@@ -88,7 +110,14 @@ export default function HatcheryPage() {
               <textarea {...register("description")} rows={4} placeholder="Describe your requirements..." className="w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-dark-100 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
               {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>}
             </div>
-            <Button type="submit" size="lg" className="w-full">Submit Request</Button>
+            <Button type="submit" size="lg" className="w-full" disabled={loading}>
+              {loading ? "Submitting..." : "Submit Request"}
+            </Button>
+            {submitted && (
+              <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 text-sm text-center">
+                Thank you! We will contact you about your hatchery request.
+              </div>
+            )}
           </motion.form>
         </div>
       </div>

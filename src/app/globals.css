@@ -28,9 +28,6 @@
 }
 
 @layer base {
-  * {
-    @apply border-gray-200 dark:border-gray-800;
-  }
   body {
     @apply bg-white text-gray-900 dark:bg-dark dark:text-gray-100 font-sans antialiased;
     font-family: var(--font-body);

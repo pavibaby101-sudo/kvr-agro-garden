@@ -74,7 +74,7 @@ export default async function PlantDetailPage({ params }: Props) {
                   : <><X className="w-5 h-5 text-red-500" /><span className="text-sm text-red-600 dark:text-red-400 font-medium">Currently Out of Stock</span></>}
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-3 gap-4 mb-6">
                 {[{ icon: Ruler, label: "Height", value: plant.height }, { icon: Droplets, label: "Water", value: plant.waterNeeds }, { icon: Sun, label: "Sunlight", value: plant.sunlight }, { icon: Swords, label: "Care Level", value: plant.careLevel }, { icon: Leaf, label: "Pot Size", value: plant.potSize }].map((spec) => (
                   <div key={spec.label} className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-dark-100">
                     <spec.icon className="w-5 h-5 text-forest-600 dark:text-forest-400 mt-0.5" />

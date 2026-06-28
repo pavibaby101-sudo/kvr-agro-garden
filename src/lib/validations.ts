@@ -49,6 +49,8 @@ export const plantFormSchema = z.object({
   waterNeeds: z.string().optional(),
   description: z.string().min(10, "Description must be at least 10 characters"),
   available: z.boolean().optional(),
+  featured: z.boolean().optional(),
+  images: z.array(z.string()).optional(),
 });
 
 export const galleryItemSchema = z.object({

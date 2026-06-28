@@ -12,15 +12,20 @@ import CTASection from "@/components/sections/CTASection";
 import WhatsAppButton from "@/components/shared/WhatsAppButton";
 import CallButton from "@/components/shared/CallButton";
 import ScrollToTop from "@/components/shared/ScrollToTop";
+import { getCategories } from "@/data/categories";
+import { getFeaturedPlants } from "@/data/plants";
 
 export default function Home() {
+  const categories = getCategories();
+  const featuredPlants = getFeaturedPlants();
+
   return (
     <main>
       <Navbar />
       <HeroSection />
       <AboutSection />
-      <CategoriesSection />
-      <ProductsSection />
+      <CategoriesSection categories={categories} />
+      <ProductsSection plants={featuredPlants} />
       <ServicesSection />
       <TestimonialsSection />
       <WhyChooseUs />

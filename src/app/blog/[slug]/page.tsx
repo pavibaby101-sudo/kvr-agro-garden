@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Calendar, Clock, User, Tag } from "lucide-react";
-import { blogPosts } from "@/data/blog";
+import { getBlogPosts } from "@/data/blog";
 import { formatDate } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -15,14 +15,14 @@ interface Props { params: Promise<{ slug: string }>; }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = blogPosts.find(p => p.slug === slug);
+  const post = getBlogPosts().find(p => p.slug === slug);
   if (!post) return { title: "Post Not Found" };
   return { title: post.title, description: post.excerpt };
 }
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = blogPosts.find(p => p.slug === slug);
+  const post = getBlogPosts().find(p => p.slug === slug);
   if (!post) notFound();
 
   return (
@@ -57,8 +57,9 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
           <div className="text-gray-600 dark:text-gray-400 leading-relaxed space-y-4">
             <p className="text-lg">{post.excerpt}</p>
-            <p>At KVR Agro Gardens, we believe in providing the best care tips and guidance to help your plants thrive. Stay tuned for more informative articles on gardening, plant care, and sustainable living.</p>
-            <p>Our team of expert horticulturists brings years of experience in tropical gardening, specifically tailored for Kerala&apos;s unique climate. Whether you are a beginner or an experienced gardener, our blog has something for everyone.</p>
+            {post.content.split("\n\n").map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
+            ))}
           </div>
         </div>
       </article>

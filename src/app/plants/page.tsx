@@ -1,10 +1,9 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Grid3X3, List, Heart, Star, ShoppingBag } from "lucide-react";
-import { plants } from "@/data/plants";
+import { Search, Grid3X3, List, Heart, Star } from "lucide-react";
 import { getDiscountedPrice } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -15,27 +14,55 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
-const categoryNames = [...new Set(plants.map(p => p.category))];
+interface PlantData {
+  id: string;
+  name: string;
+  scientificName: string;
+  category: string;
+  price: number;
+  discount: number;
+  available: boolean;
+  height: string;
+  careLevel: string;
+  images: string[];
+  rating: number;
+  reviews: number;
+  createdAt: string;
+}
 
 export default function PlantsPage() {
+  const [plants, setPlants] = useState<PlantData[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [wishlist, setWishlist] = useState<string[]>([]);
 
+  useEffect(() => {
+    fetch("/api/plants?limit=200")
+      .then((r) => r.json())
+      .then((data) => {
+        setPlants(data.plants || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const categoryNames = useMemo(() => [...new Set(plants.map((p) => p.category))], [plants]);
+
   const toggleWishlist = (id: string) => {
-    setWishlist(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    setWishlist((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const filtered = useMemo(() => {
     let result = [...plants];
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter(p => p.name.toLowerCase().includes(q) || p.scientificName.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+      result = result.filter((p) => p.name.toLowerCase().includes(q) || p.scientificName.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
     }
     if (selectedCategory !== "all") {
-      result = result.filter(p => p.category === selectedCategory);
+      result = result.filter((p) => p.category === selectedCategory);
     }
     switch (sortBy) {
       case "price-low": result.sort((a, b) => getDiscountedPrice(a.price, a.discount) - getDiscountedPrice(b.price, b.discount)); break;
@@ -45,7 +72,22 @@ export default function PlantsPage() {
       default: result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); break;
     }
     return result;
-  }, [search, selectedCategory, sortBy]);
+  }, [plants, search, selectedCategory, sortBy]);
+
+  if (loading) {
+    return (
+      <main>
+        <Navbar />
+        <div className="pt-24 pb-12 bg-gradient-to-b from-forest-50 to-white dark:from-dark dark:to-dark-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 className="text-3xl md:text-4xl font-heading font-bold text-gray-900 dark:text-white mb-2">Our Plants</h1>
+            <p className="text-gray-600 dark:text-gray-400">Loading plants...</p>
+          </div>
+        </div>
+        <Footer /><WhatsAppButton /><CallButton /><ScrollToTop />
+      </main>
+    );
+  }
 
   return (
     <main>
@@ -102,7 +144,7 @@ export default function PlantsPage() {
                   <Link href={`/plants/${plant.id}`}>
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <Image
-                        src={plant.images[0]}
+                        src={plant.images?.[0] || "/images/placeholder.jpg"}
                         alt={plant.name}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-700"
@@ -145,7 +187,7 @@ export default function PlantsPage() {
                   className="flex gap-6 p-4 bg-white dark:bg-dark-100 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-lg transition-all">
                   <Link href={`/plants/${plant.id}`} className="w-24 h-24 shrink-0 relative rounded-xl overflow-hidden">
                     <Image
-                      src={plant.images[0]}
+                      src={plant.images?.[0] || "/images/placeholder.jpg"}
                       alt={plant.name}
                       fill
                       className="object-cover"

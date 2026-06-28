@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Star } from "lucide-react";
 import { getPlantsByCategory } from "@/data/plants";
-import { categories } from "@/data/categories";
+import { getCategories } from "@/data/categories";
 import { getDiscountedPrice } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -17,6 +17,7 @@ interface Props { params: Promise<{ slug: string }>; }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const categories = getCategories();
   const cat = categories.find(c => c.slug === slug);
   if (!cat) return { title: "Category Not Found" };
   return { title: cat.name, description: cat.description };
@@ -24,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;
+  const categories = getCategories();
   const cat = categories.find(c => c.slug === slug);
   if (!cat) notFound();
 

@@ -4,14 +4,29 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, ShoppingBag, Star, Eye, ArrowRight } from "lucide-react";
-import { featuredPlants } from "@/data/plants";
-import { formatPrice, getDiscountedPrice } from "@/lib/utils";
-import AnimatedSection from "@/components/shared/AnimatedSection";
+import { getDiscountedPrice } from "@/lib/utils";
 import SectionHeading from "@/components/shared/SectionHeading";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-export default function ProductsSection() {
+interface PlantData {
+  id: string;
+  name: string;
+  scientificName: string;
+  category: string;
+  price: number;
+  discount: number;
+  available: boolean;
+  images: string[];
+  rating: number;
+  reviews: number;
+}
+
+interface ProductsSectionProps {
+  plants: PlantData[];
+}
+
+export default function ProductsSection({ plants: featuredPlants }: ProductsSectionProps) {
   const [wishlist, setWishlist] = useState<string[]>([]);
 
   const toggleWishlist = (id: string) => {
@@ -44,7 +59,7 @@ export default function ProductsSection() {
                 <Link href={`/plants/${plant.id}`}>
                   <div className="relative aspect-[4/3] bg-gradient-to-br from-forest-50 to-forest-100 dark:from-forest-900 dark:to-forest-800 overflow-hidden">
                     <Image
-                      src={plant.images[0]}
+                      src={plant.images?.[0] || "/images/placeholder.jpg"}
                       alt={plant.name}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
@@ -67,7 +82,7 @@ export default function ProductsSection() {
 
                     <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <button
-                        onClick={() => toggleWishlist(plant.id)}
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(plant.id); }}
                         className="w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors"
                       >
                         <Heart
@@ -78,9 +93,11 @@ export default function ProductsSection() {
                           }`}
                         />
                       </button>
-                      <button className="w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
-                        <Eye className="w-4 h-4 text-gray-600" />
-                      </button>
+                      <Link href={`/plants/${plant.id}`} onClick={(e) => e.stopPropagation()}>
+                        <button className="w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
+                          <Eye className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </Link>
                     </div>
                   </div>
                 </Link>

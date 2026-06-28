@@ -1,0 +1,10 @@
+[
+{
+  "id": "admin-001",
+  "name": "KVR Admin",
+  "email": "admin@kvr.com",
+  "password": "$2b$10$ilX6/X9kotxeziYlKDaNa.QmBN1jAZwG/eEW1xMmxXdUuTFT.EJaG",
+  "role": "superadmin",
+  "createdAt": "2026-06-28T02:29:20.182Z"
+}
+]

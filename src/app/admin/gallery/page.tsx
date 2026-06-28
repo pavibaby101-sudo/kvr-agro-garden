@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { AdminShell } from "@/app/admin/orders/page";
+import AdminLayout from "@/components/admin/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GalleryItem } from "@/types";
@@ -97,11 +97,16 @@ export default function AdminGalleryPage() {
     setEditCategory(item.category);
   };
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!showEdit) return;
-    setItems(prev => prev.map(i =>
-      i.id === showEdit.id ? { ...i, alt: editAlt, category: editCategory } : i
-    ));
+    try {
+      await fetch(`/api/gallery/${showEdit.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ alt: editAlt, category: editCategory }),
+      });
+      fetchItems();
+    } catch {}
     setShowEdit(null);
   };
 
@@ -135,7 +140,7 @@ export default function AdminGalleryPage() {
   };
 
   return (
-    <AdminShell title="Gallery">
+    <AdminLayout title="Gallery">
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-2">
@@ -323,6 +328,6 @@ export default function AdminGalleryPage() {
           </div>
         </div>
       )}
-    </AdminShell>
+    </AdminLayout>
   );
 }

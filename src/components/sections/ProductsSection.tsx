@@ -59,11 +59,12 @@ export default function ProductsSection({ plants: featuredPlants }: ProductsSect
                 <Link href={`/plants/${plant.id}`}>
                   <div className="relative aspect-[4/3] bg-gradient-to-br from-forest-50 to-forest-100 dark:from-forest-900 dark:to-forest-800 overflow-hidden">
                     <Image
-                      src={plant.images?.[0] || "/images/placeholder.jpg"}
+                      src={plant.images?.[0] || "/images/plants/snake-plant.jpg"}
                       alt={plant.name}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      unoptimized={!plant.images?.[0]}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
